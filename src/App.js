@@ -1,11 +1,9 @@
-import  {React, useState, useEffect} from "react";
+import { React, useState, useEffect, useCallback } from "react";
 import "./app.css";
 import User from "./components/layout/User";
 import Pc from "./components/layout/Pc";
 import Result from "./components/layout/Result";
 import Button from "./components/button/Button";
-
-
 
 const App = () => {
   const [userSelect, setUserSelect] = useState({ user: null, pc: null });
@@ -20,20 +18,19 @@ const App = () => {
 
   // 0 = Rock; 1 = Paper; 2 = Scissor;
 
-  const pcSelect = () => {
+  const pcSelect = useCallback(() => {
     let randomSelect = Math.floor(Math.random() * 10);
     return setUserSelect({
       ...userSelect,
       pc: randomSelect <= 3 ? 0 : randomSelect <= 6 ? 1 : 2,
     });
-  };
+  }, [userSelect]);
 
- useEffect(() => {
-    if (userSelect.user != null) {
+  useEffect(() => {
+    if (userSelect.user != null && userSelect.pc === null) {
       pcSelect();
     }
-  },[userSelect.user]);
-
+  }, [userSelect.user, userSelect.pc, pcSelect]);
 
   const renderResult = () => {
     const { user, pc } = userSelect;
@@ -58,10 +55,12 @@ const App = () => {
   };
 
   return (
-    <div className="container"
-    //   style={{ display: "flex", flexDirection: "column", alingItems: "center" }}
+    <div
+      className="container"
+      //   style={{ display: "flex", flexDirection: "column", alingItems: "center" }}
     >
-      <div className="main"
+      <div
+        className="main"
         // style={{
         //   display: "flex",
         //   justifyContent: "space-between",
@@ -69,14 +68,15 @@ const App = () => {
         // }}
       >
         <User userSelect={userSelect} onClickHandler={onClickHandler} />
-        
       </div>
       <div className="btn-reset">
-      <Pc pcSelect={userSelect} />
-      <Button  onClickHandler={resetButton} data={null} text={"Reset"} />
+        <Pc pcSelect={userSelect} />
+        {userSelect.user !== null && (
+          <Button onClickHandler={resetButton} data={null} text={"Reset"} />
+        )}
       </div>
       <div className="results">
-      <Result renderResult={renderResult} />
+        <Result renderResult={renderResult} />
       </div>
     </div>
   );
